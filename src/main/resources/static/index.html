@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta property="og:title" content="봉진이의 블로그">
+    <meta property="og:description" content="나에게 쓰고싶은 메세지를 적어주세요">
+    <meta property="og:image" content="images/og_selectshop.png">
+    <title>스프링부트로 나만의 페이지 만들기</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <style>
+        .username{font-size:20px;}
+        .date{font-size:12px; position:absolute; top:10px; right:10px;}
+        .title{font-size:30px; font-weight: bold;}
+        .button{position:absolute; top:25px; left:340px; font-size:25px;}
+        .card{ width: 400px; padding:15px; background-color: navajowhite; cursor: pointer; margin-top:20px; border-radius: 25px; position:relative;}
+        .button2{position:absolute; bottom: 10px; right:20px; z-index: 9999;}
+    </style>
+    <script>
+        $(document).ready(function () {
+            // HTML 문서를 로드할 때마다 실행합니다.
+            getMessages();
+        })
+
+        function getMessages(){
+            $('#card-box').empty();
+
+            $.ajax({
+                type: "GET",
+                url: "/api/memos",
+                success: function(response){
+                    console.log(response);
+                    for(let i = 0; i < response.length; i++) {
+                        let memo = response[i];
+                        let id = memo.id;
+                        let username = memo.username;
+                        let title = memo.title;
+                        let modifiedAt = memo.modifiedAt;
+                        addHTML(id, username, title, modifiedAt);
+                    }
+                }
+            })
+        }
+
+            function addHTML(id, username, title, modifiedAt){
+                let tempHtml = `<div class="card">
+                                    <div class="metadata" onclick="location.href='/index3.html?${id}'">
+                                        <div id="${id}-username" class="username">
+                                            아이디 : ${username}</div></br>
+                                        <div class="date">
+                                            ${modifiedAt}
+                                        </div>
+                                        <div class="title">
+                                            <div id="${id}-title" class="text">
+                                                제목 : ${title}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="button2" onclick="deleteOne('${id}')" type="button">삭제</button>
+                                </div>`;
+                $('#card-box').append(tempHtml);
+            }
+
+        function deleteOne(id) {
+            // 1. DELETE /api/memos/{id} 에 요청해서 메모를 삭제합니다.
+            $.ajax({
+                type : "DELETE",
+                url : `/api/memos/${id}`,
+                success: function(response){
+                    alert("삭제가 완료되었습니다.");
+                    window.location.reload();
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <div class="wrap">
+        <h1>나만의 블로그 입니다.</h1>
+        <p>나에게 전하고 싶은 말을 적어봅시다</p>
+    </div>
+
+    <div id="card-box">
+        <div class="card" onclick="location.href='index3.html'">
+            <div class="metadata">
+                <div id="1-username" class="username">
+                    Name : username</div></br>
+                <div class="date">
+                    March 19, 2022
+                </div></br>
+            </div>
+
+            <div class="title">
+                <div id="1-title" class="text">
+                    제목 : 그러니까 내가 하고싶은 말은...
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="footer">
+        <button class="button" type="button" onclick="location.href='index2.html'">
+            글쓰기
+        </button>
+    </div>
+</body>
+</html>
